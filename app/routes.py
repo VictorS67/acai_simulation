@@ -7,7 +7,6 @@ from app.forms import (
 )
 from app.conversation import (
     GPTConversation,
-    init_prompt,
     init_reflection_bot,
 )
 from app.video import init_video_for_mindfulness
@@ -198,53 +197,6 @@ def clear_session():
 def end():
     session['end'] = True
     return "ended!"
-
-
-@app.route('/full_chat/<user_id>', defaults={'show_bot_avatar': None}, methods=['GET', 'POST'])
-@app.route('/full_chat/<user_id>/<show_bot_avatar>', methods=['GET', 'POST'])
-def full_chat_window(user_id, show_bot_avatar):
-    session["user"] = user_id
-    chat_log = session.get('chat_log')
-    if chat_log is None:
-        arm_no = session.get("arm_no")
-        if arm_no is None:
-            select_prompt = init_prompt(random=True)
-        else:
-            select_prompt = init_prompt(arm_no=arm_no)
-        session["chat_log"] = select_prompt["prompt"] + select_prompt[
-            "message_start"]
-        session["chatbot"] = select_prompt["chatbot"]
-
-    convo = GPTConversation(
-        session.get("user"), 
-        session.get("chatbot"),
-        session.get("chat_log"),
-        bot_start="Hello. I am an AI agent designed to help you solve math questions. How can I help you?"
-    )
-
-    form = ChatForm()
-    if form.validate_on_submit() and not session.get('end'):
-        user_message = form.message.data
-        answer = convo.ask(user_message)
-        chat_log = convo.append_interaction_to_chat_log(user_message, answer)
-
-        session['chat_log'] = chat_log
-
-        add_new_chat_log(session["user"], session["chat_log"])
-
-        return redirect(url_for('full_chat_window', user_id=user_id, show_bot_avatar=show_bot_avatar))
-
-    return render_template(
-        '/dialogue/qualtrics_card.html',
-        user=convo.get_user(),
-        bot=convo.get_chatbot(),
-        show_bot_avatar=show_bot_avatar is not None,
-        warning=convo.WARNING,
-        end=convo.END,
-        notification=convo.NOTI,
-        conversation=convo.get_conversation(end=session.get('end')),
-        form=form
-    )
 
 
 @app.route('/survey/<user_id>', methods=['GET', 'POST'])
