@@ -2,15 +2,15 @@ from app import app
 from app.dialogue import DialogCollection
 from random import choice
 from typing import Tuple, Dict, Optional, List
-from langchain.chat_models import AzureChatOpenAI
+from langchain_community.chat_models import AzureChatOpenAI, ChatOpenAI
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 import openai
 import yaml
 import json
 
-with open('/var/www/html/acai/app/static/secret.yaml') as file:
-# with open('./app/static/secret.yaml') as file:
+# with open('/var/www/html/acai/app/static/secret.yaml') as file:
+with open('./app/static/secret.yaml') as file:
     SECRET = yaml.load(file, Loader=yaml.FullLoader)
 
 MESSAGE_START = "\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How are you doing today?"
@@ -277,23 +277,6 @@ def init_reflection_bot() -> Dict:
 
     return reflection
 
-
-def init_information_bot() -> Dict:
-    information = {
-        "prompt": "The following is a conversation with a Mindfulness instructor. The instructor teaches and provides information about different mindfulness activities to the Human. The instructor explains different activities clearly and provides examples wherever possible. The instructor has a sense of humour, is fair, and empathetic. ",
-        "message_start": "\n\nHuman: Hello, who are you?\nAI: Hello. I am an AI agent designed to act as your Mindfulness instructor. I can answer any questions you might have related to Mindfulness. How can I help you?",
-        "chatbot": "AI"
-    }
-
-    return information
-
-def init_mindy() -> Dict:
-    return       {
-        "prompt": "You are Mindy🦕, a mindfulness instructor represented as a friendly and wise Microceratus dinosaur. Mindy specializes in guiding individuals through mindfulness practices with her deep knowledge, clear explanations, and a touch of dinosaur-themed humor.\n\n### Key Characteristics of Mindy (Microceratus Dinosaur):\n- Mindfulness Expertise: Mindy uses her deep knowledge as a Microceratus to explain mindfulness techniques effectively.\n- Clear Communication: She offers simple, articulate instructions with engaging examples.\n- Dinosaur-Themed Humor: Mindy infuses the sessions with light-hearted, dinosaur-related humor to enhance the enjoyment.\n- Empathy and Sensitivity: Mindy shows understanding and empathy, aligning with the participant's emotional state.\n\n### Conversation Flow:\n- Initial Greeting: Mindy starts with a warm, dinosaur-style welcome.\nChecking Mindfulness Exercise Completion:\n\t- Mindy inquires if the participant has completed today's mindfulness exercise in the provided interface.\n\t- If not, she encourages them to visit the interface at their convenience, adding a playful nudge with her dinosaur perspective.\n- Guided Mindfulness Exercise:\n\t- Comfortable Posture: Mindy relates the importance of a good sitting position with a humorous dinosaur twist.\n\t- Breathing Observation: She guides the focus to natural breathing, adding amusing dinosaur breath facts.\n\t- Sensory Exploration: Mindy leads an engaging exploration of the five senses, incorporating unique dinosaur insights.\n\n### Handling Conversations:\n- Past Experiences: Mindy humorously acknowledges her 'dinosaur memory' to keep the focus on present mindfulness activities.\n- Redirecting Off-topic Chats: She gently guides the conversation back to mindfulness topics, suggesting social interaction with friends for other discussions.\n\n### Support and Encouragement:\n- Mindy offers continuous support, using her dinosaur identity to add fun and uniqueness to her encouragement.\n- For additional assistance, she reminds participants to reach out to the study team.",
-        "message_start": "\n\nHuman: Hello, who are you?\nMindy: Hi! I am Mindy, your mindfulness buddy! How can I help you today?",
-        "chatbot": "Mindy"
-    }
-
 class Conversation:
     CONVO_START = MESSAGE_START
     BOT_START = "Hello. I am an AI agent designed to help you manage your mood and mental health. How can I help you?"
@@ -353,12 +336,12 @@ class GPTConversation(Conversation):
         
         print(chat_messages)
         
-        model = AzureChatOpenAI(
-            openai_api_base=self.BASE_URL,
-            openai_api_version=self.API_VERSION,
-            deployment_name=self.DEPLOYMENT_NAME,
+        model = ChatOpenAI(
+            # openai_api_base=self.BASE_URL,
+            # openai_api_version=self.API_VERSION,
+            # deployment_name=self.DEPLOYMENT_NAME,
             openai_api_key=self.API_KEY,
-            openai_api_type="azure",
+            # openai_api_type="azure",
             temperature=self.TEMPERATURE,
             model_kwargs=self.CONFIGS,
             # stop=[" {}:".format(self.get_user()), " {}:".format(self.get_chatbot())],
@@ -574,71 +557,5 @@ class CustomGPTConversation(GPTConversation):
                 "message": "To copy the secret key (i.e. username), you can click the blue button on the bottom left of your screen.",
                 "send_time": None
             })
-
-        return converation
-
-
-class AutoScriptConversation(Conversation):
-    def __init__(self, user: str, chatbot: str, dialogue_path: str, dialogue_answers: Optional[Dict]) -> None:
-        super().__init__(user, chatbot)
-
-        self.start_sequence = f"\n{self.CHATBOT}:"
-        self.restart_sequence = f"\n\n{self.USER}: "
-
-        with open(f'/var/www/html/acai/app/static/dialogues/{dialogue_path}.json', encoding="utf-8") as file:
-            dialogues = json.load(file)
-
-        self.dialogue = DialogCollection(dialogues, answers=dialogue_answers)
-
-    def sync_chat_log(self, chat_log: str, dialogue_id: str) -> Tuple[str, str]:
-        if dialogue_id and chat_log:
-            curr_id = dialogue_id
-            self.dialogue.set_curr_id(curr_id)
-            self.chat_log = chat_log
-        else:
-            curr_id, messages = self.dialogue.move_to_next(show_current=True)
-            self.chat_log = "".join([f"{self.start_sequence} {message}" for message in messages])
-
-        return curr_id, self.chat_log
-
-    def give_answer(self, answer: str=None) -> Tuple[str, str]:
-
-        if answer:
-            self.chat_log += f"{self.restart_sequence}{answer}"
-            self.dialogue.add_answer(answer)
-
-        curr_id, messages = self.dialogue.move_to_next(show_current=False)
-
-        for message in messages:
-            self.chat_log += f"{self.start_sequence} {message}"
-
-        return curr_id, self.chat_log
-
-    def get_conversation(self) -> Dict:
-        dialogs = self.chat_log.split(self.restart_sequence)
-
-        converation = []
-
-        for dialog_msg in dialogs:
-            messages = dialog_msg.split(self.start_sequence)
-
-            for msg_idx, msg in enumerate(messages):
-                if msg_idx == 0:
-                    from_idt = self.user_name
-                    to_idt = self.chatbot_name
-                else:
-                    to_idt = self.user_name
-                    from_idt = self.chatbot_name
-
-                convo = []
-                for text in msg.split("\n"):
-                    if len(text) != 0:
-                        convo.append({
-                            "from": from_idt,
-                            "to": to_idt,
-                            "message": text.strip(),
-                            "send_time": None
-                        })
-                converation.extend(convo)
 
         return converation

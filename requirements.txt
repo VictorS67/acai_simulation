@@ -10,3 +10,4 @@ twilio
 WTForms
 pyyaml
 langchain
+langchain-community==0.0.19
