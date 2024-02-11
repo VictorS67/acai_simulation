@@ -10,10 +10,20 @@ This research aims to improve personalization of chatbots with the addition of c
 pip install -r requirements.txt
 ```
 
-### Init Sqlite3 database
+### Init SQLite3 database
 Run the following command to init a database if you don't have one:
 ```
-flask --app flaskr init-db
+sqlite3 database.db
+```
+
+Once a database is created, you can verify it in the list of databases using the following SQLite .databases command.
+```
+sqlite>.databases
+```
+
+After this, you will see the `database.db` file is created, then you can quit the SQLite CLI.
+```
+sqlite>.quit
 ```
 
 Then you need to run the following command to create the tables:
