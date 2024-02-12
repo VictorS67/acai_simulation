@@ -42,60 +42,6 @@ def _delete_session_variable(variable: str) -> None:
     except KeyError:
         pass
 
-@app.route('/conversation', methods=['GET', 'POST'])
-def start_conversation():
-    user_id = request.remote_addr
-    session["user"] = user_id
-    reflection_bot = session.get("reflection_bot", None)
-    if not reflection_bot:
-        select_prompt = init_reflection_bot()
-        reflection_bot = {
-            "chat_log": select_prompt["prompt"] + select_prompt[
-                "message_start"],
-            "convo_start": select_prompt["message_start"],
-            "bot_start": 'The following bot is designed to help you reflect on your understanding of the mindfulness video. You can start by prompting "Can you help me reflect on my understanding of mindfulness?"',
-            "chatbot": select_prompt["chatbot"],
-            "user": user_id,
-        }
-        session["start"] = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
-    else:
-        reflection_bot["user"] = user_id
-
-    convo = GPTConversation(
-        user=reflection_bot.get("user"),
-        chatbot=reflection_bot.get("chatbot"),
-        chat_log=reflection_bot.get("chat_log"),
-        bot_start=reflection_bot.get("bot_start"),
-        convo_start=reflection_bot.get("convo_start")
-    )
-
-    form = ChatForm()
-    if form.validate_on_submit() and not end:
-        user_message = form.message.data
-        answer = convo.ask(user_message)
-        chat_log = convo.append_interaction_to_chat_log(user_message, answer)
-
-        reflection_bot['chat_log'] = chat_log
-
-        add_new_chat_log(reflection_bot["user"], reflection_bot["chat_log"])
-        update_reflect_chat(user_id=user_id, reflect_chatlog=chat_log)
-
-        session["reflection_bot"] = reflection_bot
-
-        return redirect(url_for('start_conversation'))
-
-    return render_template(
-        '/pages/convo.html',
-        user=convo.get_user(),
-        bot=convo.get_chatbot(),
-        warning=convo.WARNING,
-        end=convo.END,
-        notification=convo.NOTI,
-        conversation=convo.get_conversation(test=True),
-        form=form
-    )
-
-
 @app.route('/qualtrics', methods=['GET', 'POST'])
 def start_qualtrics_conversation():
     user_id = request.remote_addr
@@ -193,49 +139,43 @@ def clear_session():
     return "cleared!"
 
 
-@app.route('/end', methods=['GET'])
-def end():
-    session['end'] = True
-    return "ended!"
+# @app.route('/survey/<user_id>', methods=['GET', 'POST'])
+# def survey(user_id):
+#     session["user"] = user_id
 
+#     form = SurveyForm()
+#     if form.validate_on_submit():
+#         presurvey_1 = form.mindful_today.data
+#         presurvey_2 = form.stress.data
+#         presurvey_3 = form.positive_mindset.data
+#         presurvey_4 = form.decentering.data
+#         print("SURVEY FORM IS SUBMITTED!!!")
+#         print(f"presurvey 1: {presurvey_1}\npresurvey 2: {presurvey_2}\npresurvey 3: {presurvey_3}\npresurvey 4: {presurvey_4}")
 
-@app.route('/survey/<user_id>', methods=['GET', 'POST'])
-def survey(user_id):
-    session["user"] = user_id
+#         update_pre_survey(
+#             user_id=user_id, 
+#             pre_mindful=presurvey_1, 
+#             pre_stress=presurvey_2,
+#             pre_aware=presurvey_3,
+#             pre_perspective=presurvey_4,
+#             pre_survey_click_ts=datetime.now()
+#         )
 
-    form = SurveyForm()
-    if form.validate_on_submit():
-        presurvey_1 = form.mindful_today.data
-        presurvey_2 = form.stress.data
-        presurvey_3 = form.positive_mindset.data
-        presurvey_4 = form.decentering.data
-        print("SURVEY FORM IS SUBMITTED!!!")
-        print(f"presurvey 1: {presurvey_1}\npresurvey 2: {presurvey_2}\npresurvey 3: {presurvey_3}\npresurvey 4: {presurvey_4}")
-
-        update_pre_survey(
-            user_id=user_id, 
-            pre_mindful=presurvey_1, 
-            pre_stress=presurvey_2,
-            pre_aware=presurvey_3,
-            pre_perspective=presurvey_4,
-            pre_survey_click_ts=datetime.now()
-        )
-
-        return redirect(url_for('video_diary', user_id=user_id))
+#         return redirect(url_for('video_diary', user_id=user_id))
     
-    track_link_click(user_id=user_id, timestamp=datetime.now())
-    add_new_user_to_diary_study(user_id=user_id, session_start_ts=datetime.now())
+#     track_link_click(user_id=user_id, timestamp=datetime.now())
+#     add_new_user_to_diary_study(user_id=user_id, session_start_ts=datetime.now())
     
-    delete_variables = [
-        'reflect_diary'
-    ]
-    for variable in delete_variables:
-        _delete_session_variable(variable)
+#     delete_variables = [
+#         'reflect_diary'
+#     ]
+#     for variable in delete_variables:
+#         _delete_session_variable(variable)
 
-    return render_template(
-        "/pages/survey.html",
-        form=form
-    )
+#     return render_template(
+#         "/pages/survey.html",
+#         form=form
+#     )
 
 
 @app.route('/video_diary/<user_id>', methods=['GET', 'POST'])
@@ -247,23 +187,42 @@ def video_diary(user_id):
     if form.validate_on_submit():
         diary_1 = form.diary_1.data
         diary_2 = form.diary_2.data
+        diary_3 = form.diary_3.data
+        diary_4 = form.diary_4.data
+        diary_5 = form.diary_5.data
+        diary_6 = form.diary_6.data
+        diary_7 = form.diary_7.data
+        diary_8 = form.diary_8.data
+        diary_9 = form.diary_9.data
         video_name = form.video_name.data
         print("VIDEO DIARY FORM IS SUBMITTED!!!")
-        print(f"diary 1: {diary_1}\ndiary 2: {diary_2}")
+        # print(f"diary 1: {diary_1}\ndiary 2: {diary_2}")
         print(f"video_name: {video_name}")
 
         udpate_diary(
             user_id=user_id, 
             diary_1=str(diary_1), 
             diary_2=str(diary_2), 
+            diary_3=str(diary_3), 
+            diary_4=str(diary_4), 
+            diary_5=str(diary_5), 
+            diary_6=str(diary_6), 
+            diary_7=str(diary_7), 
+            diary_8=str(diary_8), 
+            diary_9=str(diary_9), 
             video_name=str(video_name), 
             main_interface_click_ts_1=datetime.now()
         )
 
-        if int(user_id) % 2 == 0:
-            return redirect(url_for('reflect_diary', user_id=user_id))
-        else:
-            return redirect(url_for('post_survey', user_id=user_id))
+        return redirect(url_for('reflect_diary', user_id=user_id))
+
+    add_new_user_to_diary_study(user_id=user_id, session_start_ts=datetime.now())
+    
+    delete_variables = [
+        'reflect_diary'
+    ]
+    for variable in delete_variables:
+        _delete_session_variable(variable)
 
     return render_template(
         "/pages/video_diary.html", 
@@ -272,31 +231,31 @@ def video_diary(user_id):
     )
 
 
-@app.route('/post_survey/<user_id>', methods=['GET', 'POST'])
-def post_survey(user_id):
-    session["user"] = user_id
-    form = PostSurveyForm()
-    if form.validate_on_submit():
-        stress = form.stress.data
-        statement_1 = form.statement_1.data
-        statement_2 = form.statement_2.data
-        print("POST SURVEY FORM IS SUBMITTED!!!")
-        print(f"stress: {stress}\nstatement 1: {statement_1}\nstatement 2: {statement_2}")
+# @app.route('/post_survey/<user_id>', methods=['GET', 'POST'])
+# def post_survey(user_id):
+#     session["user"] = user_id
+#     form = PostSurveyForm()
+#     if form.validate_on_submit():
+#         stress = form.stress.data
+#         statement_1 = form.statement_1.data
+#         statement_2 = form.statement_2.data
+#         print("POST SURVEY FORM IS SUBMITTED!!!")
+#         print(f"stress: {stress}\nstatement 1: {statement_1}\nstatement 2: {statement_2}")
 
-        update_post_survey(
-            user_id=user_id, 
-            post_stress=stress, 
-            post_aware=statement_1, 
-            post_mindful=statement_2, 
-            post_survey_click_ts=datetime.now()
-        )
+#         update_post_survey(
+#             user_id=user_id, 
+#             post_stress=stress, 
+#             post_aware=statement_1, 
+#             post_mindful=statement_2, 
+#             post_survey_click_ts=datetime.now()
+#         )
 
-        return redirect(url_for('end_survey', user_id=user_id))
+#         return redirect(url_for('end_survey', user_id=user_id))
 
-    return render_template(
-        "/pages/post_survey.html", 
-        form=form
-    )
+#     return render_template(
+#         "/pages/post_survey.html", 
+#         form=form
+#     )
 
 
 @app.route('/reflect_diary/<user_id>', methods=['GET', 'POST'])
@@ -320,21 +279,42 @@ def reflect_diary(user_id):
     if form.validate_on_submit():
         diary_1 = form.diary_1.data
         diary_2 = form.diary_2.data
+        diary_3 = form.diary_3.data
+        diary_4 = form.diary_4.data
+        diary_5 = form.diary_5.data
+        diary_6 = form.diary_6.data
+        diary_7 = form.diary_7.data
+        diary_8 = form.diary_8.data
+        diary_9 = form.diary_9.data
         print("VIDEO DIARY FORM IS SUBMITTED!!!")
-        print(f"diary 1: {diary_1}\ndiary 2: {diary_2}")
+        # print(f"diary 1: {diary_1}\ndiary 2: {diary_2}")
 
         update_reflect(
             user_id=user_id, 
-            diary_1=diary_1, 
-            diary_2=diary_2, 
+            diary_1=str(diary_1), 
+            diary_2=str(diary_2), 
+            diary_3=str(diary_3), 
+            diary_4=str(diary_4), 
+            diary_5=str(diary_5), 
+            diary_6=str(diary_6), 
+            diary_7=str(diary_7), 
+            diary_8=str(diary_8), 
+            diary_9=str(diary_9), 
             main_interface_click_ts_2=datetime.now()
         )
 
-        return redirect(url_for('post_survey', user_id=user_id))
+        return redirect(url_for('end_survey', user_id=user_id))
     
-    diary_1, diary_2 = get_diary_answers_from_latest_user_id(user_id)
+    diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9 = get_diary_answers_from_latest_user_id(user_id)
     form.diary_1.default = diary_1 if diary_1 is not None else ''
     form.diary_2.default = diary_2 if diary_2 is not None else ''
+    form.diary_3.default = diary_3 if diary_3 is not None else ''
+    form.diary_4.default = diary_4 if diary_4 is not None else ''
+    form.diary_5.default = diary_5 if diary_5 is not None else ''
+    form.diary_6.default = diary_6 if diary_6 is not None else ''
+    form.diary_7.default = diary_7 if diary_7 is not None else ''
+    form.diary_8.default = diary_8 if diary_8 is not None else ''
+    form.diary_9.default = diary_9 if diary_9 is not None else ''
     form.process()
     
     return render_template(

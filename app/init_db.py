@@ -26,14 +26,16 @@ cur.execute("INSERT INTO linkClick (user_id) VALUES (?)",
 cur.execute("""
     INSERT INTO interfaceSession (
         user_id, pre_mindful, pre_stress, pre_aware, pre_perspective, 
-        diary_1, diary_2, post_mindful, post_stress, post_aware, 
-        session_start_ts, video_name, pre_survey_click_ts, main_interface_click_ts_1, 
+        diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8,
+        diary_9, post_mindful, post_stress, post_aware, session_start_ts, 
+        video_name, pre_survey_click_ts, main_interface_click_ts_1, 
         main_interface_click_ts_2, reflect_chatlog, post_survey_click_ts
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 """, ('127.0.0.1', 'Pre-Mindful Response', 'Pre-Stress Response', 'Pre-Aware Response', 
-      'Pre-Perspective Response', 'Diary Entry 1', 'Diary Entry 2', 
-      'Post-Mindful Response', 'Post-Stress Response', 'Post-Aware Response',
-      '2023-01-01 00:00:00', 'Sample Video', '2023-01-01 00:00:00', 
+      'Pre-Perspective Response', 'Diary Entry 1', 'Diary Entry 2', 'Diary Entry 3', 
+      'Diary Entry 4', 'Diary Entry 5', 'Diary Entry 6', 'Diary Entry 7', 
+      'Diary Entry 8', 'Diary Entry 9','Post-Mindful Response', 'Post-Stress Response', 
+      'Post-Aware Response', '2023-01-01 00:00:00', 'Sample Video', '2023-01-01 00:00:00', 
       '2023-01-01 00:00:00', '2023-01-01 00:00:00', 'Reflect Chatlog', '2023-01-01 00:00:00'))
 
 # Commit the changes and close the connection

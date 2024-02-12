@@ -32,6 +32,13 @@ Daily Mindfulness
           {% include 'pages/includes/diary.html' %}
           {{ form.diary_1(hidden='true', id='form-diary-1') }}
           {{ form.diary_2(hidden='true', id='form-diary-2') }}
+          {{ form.diary_3(hidden='true', id='form-diary-3') }}
+          {{ form.diary_4(hidden='true', id='form-diary-4') }}
+          {{ form.diary_5(hidden='true', id='form-diary-5') }}
+          {{ form.diary_6(hidden='true', id='form-diary-6') }}
+          {{ form.diary_7(hidden='true', id='form-diary-7') }}
+          {{ form.diary_8(hidden='true', id='form-diary-8') }}
+          {{ form.diary_9(hidden='true', id='form-diary-9') }}
           {{ form.submit(hidden='true', id='form-submit') }}
         </form>
       </div>
@@ -48,10 +55,24 @@ var BOT_URL_REGEX = /(http[s]?:\/\/[\w.:]+\/reflect_bot)(\/[^\/]+)(\/[^\/]*)?(?=
 var ReflectDiary = function() {
   this.formDiary1 = document.getElementById(`form-diary-1`),
   this.formDiary2 = document.getElementById(`form-diary-2`),
+  this.formDiary3 = document.getElementById(`form-diary-3`),
+  this.formDiary4 = document.getElementById(`form-diary-4`),
+  this.formDiary5 = document.getElementById(`form-diary-5`),
+  this.formDiary6 = document.getElementById(`form-diary-6`),
+  this.formDiary7 = document.getElementById(`form-diary-7`),
+  this.formDiary8 = document.getElementById(`form-diary-8`),
+  this.formDiary9 = document.getElementById(`form-diary-9`),
   this.formSubmit = document.getElementById(`form-submit`),
   this.reflectBot = document.getElementById(`reflect-iframe`),
   this.diary1 = document.getElementById(`question1`),
   this.diary2 = document.getElementById(`question2`),
+  this.diary3 = document.getElementById(`question3`),
+  this.diary4 = document.getElementById(`question4`),
+  this.diary5 = document.getElementById(`question5`),
+  this.diary6 = document.getElementById(`question6`),
+  this.diary7 = document.getElementById(`question7`),
+  this.diary8 = document.getElementById(`question8`),
+  this.diary9 = document.getElementById(`question9`),
   this.submitBtn = document.getElementById(`submit-btn`),
   this.startTime = new Date("{{convo_start}}").getTime()
 }
@@ -65,6 +86,13 @@ ReflectDiary.prototype = {
   _prepareFrontEnd: function() {
     this.diary1.value = this.formDiary1.value;
     this.diary2.value = this.formDiary2.value;
+    this.diary3.value = this.formDiary3.value;
+    this.diary4.value = this.formDiary4.value;
+    this.diary5.value = this.formDiary5.value;
+    this.diary6.value = this.formDiary6.value;
+    this.diary7.value = this.formDiary7.value;
+    this.diary8.value = this.formDiary8.value;
+    this.diary9.value = this.formDiary9.value;
 
     const match = this.reflectBot.src.match(BOT_URL_REGEX);
     let show_bot_avatar = match[3] !== undefined ? match[3] : '';    
@@ -121,6 +149,41 @@ ReflectDiary.prototype = {
     this.diary2.addEventListener(
       "input", 
       that.syncValueChange.bind(that.diary2, [that.formDiary2])
+    );
+
+    this.diary3.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary3, [that.formDiary3])
+    );
+
+    this.diary4.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary4, [that.formDiary4])
+    );
+
+    this.diary5.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary5, [that.formDiary5])
+    );
+
+    this.diary6.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary6, [that.formDiary6])
+    );
+
+    this.diary7.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary7, [that.formDiary7])
+    );
+
+    this.diary8.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary8, [that.formDiary8])
+    );
+
+    this.diary9.addEventListener(
+      "input", 
+      that.syncValueChange.bind(that.diary9, [that.formDiary9])
     );
 
     this.submitBtn.addEventListener(

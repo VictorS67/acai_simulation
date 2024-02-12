@@ -140,7 +140,7 @@ def update_pre_survey(user_id, pre_mindful, pre_stress, pre_aware, pre_perspecti
             sqliteConnection.close()
             print("The SQLite connection is closed")
 
-def udpate_diary(user_id, diary_1, diary_2, video_name, main_interface_click_ts_1):
+def udpate_diary(user_id, diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9, video_name, main_interface_click_ts_1):
     sqliteConnection = None
     try:
         sqliteConnection = sqlite3.connect(SQLITE_DB_PATH)
@@ -150,6 +150,13 @@ def udpate_diary(user_id, diary_1, diary_2, video_name, main_interface_click_ts_
         sqlite_insert_query = """UPDATE interfaceSession
                                 SET diary_1 = ?, 
                                 diary_2 = ?,
+                                diary_3 = ?,
+                                diary_4 = ?,
+                                diary_5 = ?,
+                                diary_6 = ?,
+                                diary_7 = ?,
+                                diary_8 = ?,
+                                diary_9 = ?,
                                 video_name = ?,
                                 main_interface_click_ts_1 = ?
                                 WHERE id = (
@@ -157,7 +164,7 @@ def udpate_diary(user_id, diary_1, diary_2, video_name, main_interface_click_ts_
                                     FROM interfaceSession
                                     WHERE user_id = ?
                                 );"""
-        param_tuple = (diary_1, diary_2, video_name, main_interface_click_ts_1, user_id)
+        param_tuple = (diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9, video_name, main_interface_click_ts_1, user_id)
         count = cursor.execute(sqlite_insert_query, param_tuple)
         sqliteConnection.commit()
         print(
@@ -201,7 +208,7 @@ def update_reflect_chat(user_id, reflect_chatlog):
             sqliteConnection.close()
             print("The SQLite connection is closed")
 
-def update_reflect(user_id, diary_1, diary_2, main_interface_click_ts_2):
+def update_reflect(user_id, diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9, main_interface_click_ts_2):
     sqliteConnection = None
     try:
         sqliteConnection = sqlite3.connect(SQLITE_DB_PATH)
@@ -211,13 +218,20 @@ def update_reflect(user_id, diary_1, diary_2, main_interface_click_ts_2):
         sqlite_insert_query = """UPDATE interfaceSession
                                 SET diary_1 = ?, 
                                 diary_2 = ?,
+                                diary_3 = ?,
+                                diary_4 = ?,
+                                diary_5 = ?,
+                                diary_6 = ?,
+                                diary_7 = ?,
+                                diary_8 = ?,
+                                diary_9 = ?,
                                 main_interface_click_ts_2 = ?
                                 WHERE id = (
                                     SELECT MAX(id)
                                     FROM interfaceSession
                                     WHERE user_id = ?
                                 );"""
-        param_tuple = (diary_1, diary_2, main_interface_click_ts_2, user_id)
+        param_tuple = (diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9, main_interface_click_ts_2, user_id)
         count = cursor.execute(sqlite_insert_query, param_tuple)
         sqliteConnection.commit()
         print(
@@ -266,13 +280,13 @@ def update_post_survey(user_id, post_mindful, post_stress, post_aware, post_surv
 
 def get_diary_answers_from_latest_user_id(user_id):
     sqliteConnection = None
-    diary_1, diary_2 = None, None
+    diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9 = None, None, None, None, None, None, None, None, None
     try:
         sqliteConnection = sqlite3.connect(SQLITE_DB_PATH)
         cursor = sqliteConnection.cursor()
         print("Successfully Connected to SQLite")
 
-        query_sql = """SELECT diary_1, diary_2
+        query_sql = """SELECT diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9
                         FROM interfaceSession 
                         WHERE id = (
                             SELECT MAX(id)
@@ -282,9 +296,9 @@ def get_diary_answers_from_latest_user_id(user_id):
         param_tuple = (user_id)
         count = cursor.execute(query_sql, param_tuple)
 
-        diary_1, diary_2 = cursor.fetchone()
+        diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9 = cursor.fetchone()
 
-        print(f'diary_answers: {diary_1}, {diary_2}')
+        print(f'diary_answers: {diary_1}, {diary_2}, {diary_3}, {diary_4}, {diary_5}, {diary_6}, {diary_7}, {diary_8}, {diary_9}')
         cursor.close()
 
     except sqlite3.Error as error:
@@ -294,4 +308,4 @@ def get_diary_answers_from_latest_user_id(user_id):
             sqliteConnection.close()
             print("The SQLite connection is closed")
 
-    return diary_1, diary_2
+    return diary_1, diary_2, diary_3, diary_4, diary_5, diary_6, diary_7, diary_8, diary_9

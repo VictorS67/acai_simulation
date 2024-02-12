@@ -56,9 +56,23 @@ class SurveyForm(FlaskForm):
 
 
 class DiaryForm(FlaskForm):
-    diary_1 = StringField('What has changed?')
+    diary_1 = StringField('question 1')
 
-    diary_2 = StringField('How the mindfulness practices influence you?')
+    diary_2 = StringField('question 2')
+
+    diary_3 = StringField('question 3')
+
+    diary_4 = StringField('question 4')
+
+    diary_5 = StringField('question 5')
+
+    diary_6 = StringField('question 6')
+
+    diary_7 = StringField('question 7')
+
+    diary_8 = StringField('question 8')
+
+    diary_9 = StringField('question 9')
 
     video_name = StringField('Video Name')
 
